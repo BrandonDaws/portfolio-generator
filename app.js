@@ -1,5 +1,9 @@
+const {writeFile, copyFile} = require('./utils/generate-site.js');
 const inquirer = require('inquirer');
 
+
+
+const generatePage = require('./src/page-template');
 
 const promptUser = () => {
 return inquirer
@@ -54,16 +58,18 @@ return inquirer
 
 
 
-promptProject = portfolioData => {
-    //checks if 'projects' array property exists, creates one if not
-    if (!portfolioData.projects){
-        portfolioData.projects = [];
-    }
+const promptProject = portfolioData => {
+   
+    
     console.log(`
     ==================
     NEW PROJECT HERE 
     =================
     `);
+     //checks if 'projects' array property exists, creates one if not
+     if (!portfolioData.projects){
+        portfolioData.projects = [];
+     }
     return inquirer.prompt([
         {
             type: 'input',
@@ -73,7 +79,7 @@ promptProject = portfolioData => {
                 if (projName) {
                     return true;
                 } else {
-                    console.log('Please enter your name!');
+                    console.log('Please enter The name!');
                     return false;
                 }
             }
@@ -86,7 +92,7 @@ promptProject = portfolioData => {
                 if (descripInput) {
                     return true;
                 } else {
-                    console.log('Please enter your name!');
+                    console.log('Please enter your description!');
                     return false;
                 }
             }
@@ -105,10 +111,16 @@ promptProject = portfolioData => {
                 if (urlInput) {
                     return true;
                 } else {
-                    console.log('Please enter your name!');
+                    console.log('Please enter Link!');
                     return false;
                 }
             }
+        },
+        {
+            type: 'confirm',
+            name: 'feature',
+            message: 'Would you like to feature this project?',
+            default: false
         },
         {
             type: 'confirm',
@@ -126,24 +138,20 @@ promptProject = portfolioData => {
     })
 };
 promptUser()
-.then(promptProject)
-.then(portfolioData => {
-    console.log(portfolioData);
-})
-
-//const fs = require('fs');
-//
-//const generatePage = require('./src/page-template');
-//
-//const pageHTML = generatePage(name, github);
-//
-////writes html file with name and github input. 
-//fs.writeFile('index.html', generatePage(name, github), err => {
-//    if (err) throw err;
-//
-//    console.log('portfolio complete! check out index.html to see the output!');
-//});
-//
-
-
-
+  .then(promptProject)
+  .then(portfolioData => {
+    return generatePage(portfolioData);
+  })
+  .then(pageHTML => {
+    return writeFile(pageHTML);
+  })
+  .then(writeFileResponse => {
+    console.log(writeFileResponse);
+    return copyFile();
+  })
+  .then(copyFileResponse => {
+    console.log(copyFileResponse);
+  })
+  .catch(err => {
+    console.log(err);
+  });
